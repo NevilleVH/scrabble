@@ -4,7 +4,7 @@ import java.util.*;
  * Created by NevilleVH on 2015-08-15.
  */
 public class PredictionTree{
-    //REQUIRES SORTED ARRAY OF UNIQUE WORDS EACH FOLLOWED BY A SPACE
+    //REQUIRES SORTED ARRAY OF UNIQUE WORDS
     private HashMap<Character,PredictionTree> branches = new HashMap<Character,PredictionTree>();
 
     PredictionTree(){}
@@ -28,7 +28,7 @@ public class PredictionTree{
 
     private void AddBranches(String[] words){
         int start = 0;
-        if (words[0].equals(" ")) {//clean this up?
+        if (words[0].equals("")) {
             branches.put(' ',new PredictionTree());
             start = 1;
         }

@@ -74,30 +74,5 @@ public class Cell {
     }
 
 
-    public static String toString(ArrayList<Tile> tiles){
-        String result = "";
-        String[] temp = new String[4];
-        temp[0] = "┌";
-        temp[1] = temp[2] = "│";
-        temp[3] = "└";
-        for (Tile tile : tiles){
-            String[] concatable = tile.getConcatable();
-            temp[0] += concatable[0] + "┬";
-            temp[1] += concatable[1];
-            temp[2] += concatable[2];
-            temp[3] += concatable[3] + "┴";
-        }
-        temp[0] = temp[0].substring(0, temp[0].length() - 1) + "┐";
-        temp[3] = temp[3].substring(0, temp[3].length() - 1) + "┘";
-        for (String line : temp){
-            result += line + '\n';
-        }
-        return result;
-    }
-    /*
-    public static String toString(Cell[][] board){
-        String result = "";
 
-    }
-    */
 }

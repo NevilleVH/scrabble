@@ -8,29 +8,26 @@ import java.util.HashSet;
 public class Player {
     private String name;
     private int score;
-    private ArrayList<Tile> letters;
+    private TileList rack;
+
+    public Player(){
+        score = 0;
+        rack = new TileList();
+    }
 
     public Player(String pName){
         name = pName;
         score = 0;
-        letters = new ArrayList<>();
+        rack = new TileList();
     }
 
-    public ArrayList<Tile> getRack(){
-        ArrayList<Tile> copy = new ArrayList<>();
-        copy.addAll(letters);
-        return copy;
-    }
+    //public ArrayList<Tile> getRack(){
+    //    re
+    //}
 
-    public boolean rackEmpty(){
-        return letters.size() == 0;
-    }
 
     public int getFinalScore(){
-        for (Tile t : letters){
-            score -= t.getPoints();
-        }
-        return score;
+        return score - rack.totalPoints();
     }
 
     public void updateScore(int points){
@@ -42,7 +39,7 @@ public class Player {
     }
 
     public void drawLetters(ArrayList<Tile> newLetters){
-        letters.addAll(newLetters);
+        rack.addTiles(newLetters);
     }
 
     public void removeLetter(char character){
@@ -51,12 +48,6 @@ public class Player {
 
     }
 
-    public void removeLetters(String characters){
-        for (char c : characters.toCharArray()) {
-            Tile letter = new Tile(c);
-            letters.remove(letter);
-        }
-    }
 
     public void removeLetters(ArrayList<Tile> tiles){
         letters.removeAll(tiles);
@@ -86,22 +77,13 @@ public class Player {
     }
 
 
-    public ArrayList<Tile> getTiles(ArrayList<Tile> requiredLetters){ //this can and should be rewritten
+    public TileList playTiles(TileList requiredLetters){
         //returns null if not all required letters are present
-        ArrayList<Tile> result = new ArrayList<>();
-        ArrayList<Tile> tempLetters = new ArrayList<>();
-        tempLetters.addAll(letters);
-        for (Tile tile : requiredLetters){
-            Tile temp;
-            if ((temp = findAndRemove(tile)) != null){
-                result.add(temp);
-            } else {
-                letters = tempLetters;
-                return null;
-            }
-        }
-        return result;
-
+        if (rack.contains(requiredLetters)) {
+            rack.removeTiles(requiredLetters);
+            return requiredLetters;
+        } else
+            return null;
     }
 
 }

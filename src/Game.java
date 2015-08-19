@@ -11,6 +11,8 @@ public class Game {
     //private Dictionary dictionary = new Dictionary();
     private LetterBag letterBag = new LetterBag();
 
+
+
     public void setPlayers(int numPlayers){
         players = new Player[numPlayers];
         for (int i = 0; i < numPlayers; i++){
@@ -51,7 +53,7 @@ public class Game {
                             int column = scanner.nextInt()-1;
                             scanner.nextLine();
 
-                            ArrayList<Tile> letters = players[i].getTiles(board.requiredLetters(row, column, direction, word));
+                            ArrayList<Tile> letters = players[i].playTiles(board.requiredLetters(row, column, direction, word));
 
                             if (board.isValid(row, column, direction, word) && letters != null){
                                 int points = board.pointsFromWord(row, column, direction, letters);

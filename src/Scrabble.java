@@ -12,6 +12,10 @@ import java.util.Scanner;
 
 /**
  * Created by NevilleVH on 2015-08-10.
+ * Easy: https://github.com/first20hours/google-10000-english/blob/master/google-10000-english.txt
+ * Medium: http://www.mieliestronk.com/corncob_caps.txt
+ * above two only contain english spelling
+ * Hard: sowpods
  */
 public class Scrabble {
     public static void main(String[] args) {

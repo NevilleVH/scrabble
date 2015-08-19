@@ -8,13 +8,22 @@ import java.util.stream.Stream;
  */
 public class Tile extends Cell{
     private char letter;
-    private byte points;
+    private byte points; //this doesn't necessarily have to be stored
+    private boolean isBlank; //perhaps wasteful to store this information for every tile; but this simplifies matters elsewhere
 
     public Tile(char pLetter){
         letter = pLetter;
         points = letterPoints(letter);
     }
-    
+    public Tile(Tile tile){
+        letter = tile.getLetter();
+        points = tile.getPoints();
+    }
+
+    public boolean isBlank() {
+        return isBlank;
+    }
+
     private byte letterPoints(char letter){
         switch (letter){
             case 'E' :
