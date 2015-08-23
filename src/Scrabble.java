@@ -29,19 +29,44 @@ public class Scrabble {
 */
 
         //System.out.println("╔══╦══╗");
-        Game game = new Game();
+        /*
         System.out.println("┌───┬");
         System.out.println("│A  │");
         System.out.println("│  1│");
         System.out.println("├───┴");
-        Scanner scanner = new Scanner(System.in);
+
+
         System.out.println("Enter number of players:");
         int numPlayers = scanner.nextInt();
         scanner.nextLine();
-        System.out.println("How many of these do you wish to be bots?");
+        */
+        startMessage();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Please enter your name:");
+        String name = scanner.nextLine();
+        System.out.println("How AI players do you wish to play against?");
         int AIs = scanner.nextInt();
         scanner.nextLine();
-        game.setPlayers(numPlayers);
+        System.out.println("Select your desired difficulty level:\n1) Easy\n2) Intermediate\n3) Hard");
+        int difficultyNum = scanner.nextInt();
+        scanner.nextLine();
+        AIPlayer.Difficulty difficulty = AIPlayer.Difficulty.values()[difficultyNum-1];
+        Game game = new Game(name, AIs, difficulty);
         game.Play();
+    }
+
+    public static void startMessage(){
+        ArrayList<Tile> scrabbleMsg = new ArrayList<>();
+        scrabbleMsg.add(new Letter('S'));
+        scrabbleMsg.add(new Letter('C'));
+        scrabbleMsg.add(new Letter('R'));
+        scrabbleMsg.add(new Letter('A'));
+        scrabbleMsg.add(new Letter('B'));
+        scrabbleMsg.add(new Letter('B'));
+        scrabbleMsg.add(new Letter('L'));
+        scrabbleMsg.add(new Letter('E'));
+        System.out.println(Tile.displayTiles(scrabbleMsg));
+        System.out.println("Welcome to Scrabble!");
     }
 }

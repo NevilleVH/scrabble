@@ -6,28 +6,24 @@ import java.util.HashSet;
  * Created by NevilleVH on 2015-08-10.
  */
 public class Player {
-    private String name;
+    protected String name;
     private int score;
-    private TileList rack;
+    protected ArrayList<Tile> rack;
 
     public Player(){
         score = 0;
-        rack = new TileList();
+        rack = new ArrayList<>();
     }
 
     public Player(String pName){
         name = pName;
         score = 0;
-        rack = new TileList();
+        rack = new ArrayList<>();
     }
-
-    //public ArrayList<Tile> getRack(){
-    //    re
-    //}
 
 
     public int getFinalScore(){
-        return score - rack.totalPoints();
+        return score - totalPointsOnRack();
     }
 
     public void updateScore(int points){
@@ -38,52 +34,173 @@ public class Player {
         return score;
     }
 
-    public void drawLetters(ArrayList<Tile> newLetters){
-        rack.addTiles(newLetters);
+    public void drawTiles(ArrayList<Tile> newTiles){
+        rack.addAll(newTiles);
+
     }
 
     public void removeLetter(char character){
-        Tile letter = new Tile(character);
-        letters.remove(letter);
+        Letter letter = new Letter(character);
+        rack.remove(letter);
 
     }
 
 
-    public void removeLetters(ArrayList<Tile> tiles){
-        letters.removeAll(tiles);
+    public void removeTiles(ArrayList<Tile> tiles){
+        rack.removeAll(tiles);
     }
 
-    public int lettersToDraw(){
-        return 7 - letters.size();
+    public int tilesToDraw(){
+        return 7 - rack.size();
     }
 
     public String viewTiles(){
 
-        return Cell.toString(letters);
+        return Tile.displayTiles(rack);
     }
-    private Tile findAndRemove(Tile tile){
-        Tile blank = new Tile('_');
-        if (letters.contains(tile)){
-            letters.remove(tile);
-            return tile;
-        } else if (letters.contains(blank)){
-            letters.remove(blank);
-            blank.setLetter(tile.getLetter());
-            return blank;
-        }
 
+
+    private Tile getTile(char c){
+        for (Tile tile : rack)
+            if (tile.getLetter() == c)
+                return tile;
         return null;
+    }
+
+    private Blank popBlank(){
+        for (int i = 0; i < rack.size(); i++) {
+            Tile tile = rack.get(i);
+            if (tile instanceof Blank) {
+                rack.remove(tile);
+                return (Blank) tile;
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<Tile> playTiles(String requiredLetters){
+        ArrayList<Tile> toBePlayed = new ArrayList<>();
+        for (Character c : requiredLetters.toCharArray()){
+            if (rackContains(c)){
+                toBePlayed.add(new Letter(c));
+                removeLetter(c);
+            } else if (numberOfBlanks() > 0) { //the things we do in the name of readability
+                Blank blank = popBlank();
+                blank.setLetter(c);
+                toBePlayed.add(blank);
+            }
+        }
+        return toBePlayed;
+    }
+
+    private void removeBlank(){
+        for (Tile t : rack)
+            if (t instanceof Blank) {
+                rack.remove(t);
+                return;
+            }
 
     }
 
 
-    public TileList playTiles(TileList requiredLetters){
-        //returns null if not all required letters are present
-        if (rack.contains(requiredLetters)) {
-            rack.removeTiles(requiredLetters);
-            return requiredLetters;
-        } else
-            return null;
+    private int totalPointsOnRack(){
+        int result = 0;
+        for (Tile t : rack){
+            result += t.getPoints();
+        }
+        return result;
     }
+
+
+    public String toString(){
+        String result = "";
+        for (Tile tile : rack){
+            result += tile.getLetter();
+        }
+        return result;
+    }
+
+
+    public ArrayList<Tile> getTiles(){
+        ArrayList<Tile> copy = new ArrayList<>();
+        copy.addAll(rack);
+        return copy;
+    }
+
+    public ArrayList<Tile> getTiles(ArrayList<Tile> tiles){ //this is necessary as the required rack will have default scores, whereas
+
+        ArrayList<Tile> copy = new ArrayList<>();
+        copy.addAll(rack);
+        return copy;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ArrayList<Tile> copyTiles(String requiredLetters){ //this is necessary as the required rack will have default scores, whereas
+        ArrayList<Tile> copy = new ArrayList<>();
+        for (Character c : requiredLetters.toCharArray()){
+            if (rackContains(c)){
+                copy.add(new Letter(c));
+            } else if (numberOfBlanks() > 0) { //the things we do in the name of readability
+                Blank blank = new Blank();
+                blank.setLetter(c);
+                copy.add(blank);
+            }
+        }
+        return copy;
+    }
+
+    public boolean rackContains(Tile tile){
+        return rack.contains(tile);
+    }
+
+    public boolean rackContains(char letter){
+        for (Tile tile : rack)
+            if (tile.getLetter() == letter)
+                return true;
+        return false;
+    }
+
+    public boolean rackEmpty(){
+        return rack.size() == 0;
+    }
+    private int numberOfBlanks(){
+        int count = 0;
+        for (Tile tile : rack)
+            if (tile instanceof Blank)
+                count++;
+        return count;
+    }
+
+    public ArrayList<Tile> getRack(){
+        ArrayList<Tile> temp = new ArrayList<>();
+        temp.addAll(rack);
+        return temp;
+    }
+
+    public boolean rackContains(String letters){
+        for (Tile tile : rack) {
+            String letter = tile.getLetter() + "";
+            if (letters.contains(letter))
+                letters = letters.replace(letter, "");
+        }
+        return numberOfBlanks() >= letters.length();
+
+    }
+
+    public boolean rackContains(ArrayList<Tile> tiles){
+        ArrayList<Tile> temp = new ArrayList<>();
+        temp.addAll(rack);
+        for (Tile tile : tiles)
+            if (temp.contains(tile)){
+                temp.remove(tile); //java's containsAll method doesn't do this i.e. check that duplicates exist if required
+            } else
+                return false;
+        return true;
+    }
+
+
 
 }

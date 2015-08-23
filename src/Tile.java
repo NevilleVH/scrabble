@@ -1,3 +1,4 @@
+import javax.rmi.CORBA.Tie;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -7,76 +8,17 @@ import java.util.stream.Stream;
  * Created by NevilleVH on 2015-08-12.
  */
 public class Tile extends Cell{
-    private char letter;
-    private byte points; //this doesn't necessarily have to be stored
-    private boolean isBlank; //perhaps wasteful to store this information for every tile; but this simplifies matters elsewhere
+    protected char letter;
+    protected byte points;
 
-    public Tile(char pLetter){
-        letter = pLetter;
-        points = letterPoints(letter);
-    }
-    public Tile(Tile tile){
-        letter = tile.getLetter();
-        points = tile.getPoints();
-    }
-
-    public boolean isBlank() {
-        return isBlank;
-    }
-
-    private byte letterPoints(char letter){
-        switch (letter){
-            case 'E' :
-            case 'A' :
-            case 'I' :
-            case 'O' :
-            case 'N' :
-            case 'R' :
-            case 'T' :
-            case 'L' :
-            case 'S' :
-            case 'U' :
-                return 1;
-            case 'D' :
-            case 'G' :
-                return 2;
-            case 'B' :
-            case 'C' :
-            case 'M' :
-            case 'P' :
-                return 3;
-            case 'F' :
-            case 'H' :
-            case 'V' :
-            case 'W' :
-            case 'Y' :
-                return 4;
-            case 'K' :
-                return 5;
-            case 'J' :
-            case 'X' :
-                return 8;
-            case 'Q' :
-            case 'Z' :
-                return 10;
-            case '_' :
-                return 0;
-            default:
-                return -1;
-        }
-    }
     public char getLetter(){
         return letter;
     }
 
-    public byte getPoints() {
+    public byte getPoints(){
         return points;
     }
 
-    public void setLetter(char pLetter) {
-        if (letter == '_')
-            letter = pLetter;
-    }
 
     public String[] getConcatable(){
         String[] result = new String[4];
@@ -85,7 +27,7 @@ public class Tile extends Cell{
         //result[2] = String.format("%3d│",points);
         result[0] = result[3] = "═══";
         result[1] = " " + letter +" ║";
-        result[2] = String.format("%3d║",points);
+        result[2] = String.format("%3d║", points);
         return result;
     }
        // @Override
@@ -95,6 +37,26 @@ public class Tile extends Cell{
         return false;
     }
 
+    public static String displayTiles(ArrayList<Tile> tiles) {
+        String result = "";
+        String[] temp = new String[4];
+        temp[0] = "╔";
+        temp[1] = temp[2] = "║";
+        temp[3] = "╚";
+        for (Tile tile : tiles){
+            String[] concatable = tile.getConcatable();
+            temp[0] += concatable[0] + "╦";
+            temp[1] += concatable[1];
+            temp[2] += concatable[2];
+            temp[3] += concatable[3] + "╩";
+        }
+        temp[0] = temp[0].substring(0, temp[0].length() - 1) + "╗";
+        temp[3] = temp[3].substring(0, temp[3].length() - 1) + "╝";
+        for (String line : temp){
+            result += line + '\n';
+        }
+        return result;
+    }
 
 
 

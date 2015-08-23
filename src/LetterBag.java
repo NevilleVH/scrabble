@@ -12,38 +12,39 @@ public class LetterBag {
 
     public LetterBag (){
         letters = new ArrayList<>(100);
-        letters.addAll(Collections.nCopies(2, new Tile('_')));
-        letters.addAll(Collections.nCopies(12, new Tile('E')));
-        letters.addAll(Collections.nCopies(9, new Tile('A')));
-        letters.addAll(Collections.nCopies(9, new Tile('I')));
-        letters.addAll(Collections.nCopies(8, new Tile('O')));
-        letters.addAll(Collections.nCopies(6, new Tile('N')));
-        letters.addAll(Collections.nCopies(6, new Tile('R')));
-        letters.addAll(Collections.nCopies(6, new Tile('T')));
-        letters.addAll(Collections.nCopies(4, new Tile('L')));
-        letters.addAll(Collections.nCopies(4, new Tile('S')));
-        letters.addAll(Collections.nCopies(4, new Tile('U')));
-        letters.addAll(Collections.nCopies(4, new Tile('D')));
-        letters.addAll(Collections.nCopies(2, new Tile('B')));
-        letters.addAll(Collections.nCopies(2, new Tile('C')));
-        letters.addAll(Collections.nCopies(2, new Tile('M')));
-        letters.addAll(Collections.nCopies(2, new Tile('P')));
-        letters.addAll(Collections.nCopies(2, new Tile('F')));
-        letters.addAll(Collections.nCopies(2, new Tile('H')));
-        letters.addAll(Collections.nCopies(2, new Tile('V')));
-        letters.addAll(Collections.nCopies(2, new Tile('W')));
-        letters.addAll(Collections.nCopies(2, new Tile('Y')));
-        letters.add(new Tile('K'));
-        letters.add(new Tile('J'));
-        letters.add(new Tile('X'));
-        letters.add(new Tile('Q'));
-        letters.add(new Tile('Z'));
+        letters.addAll(Collections.nCopies(2, new Blank()));
+        letters.addAll(Collections.nCopies(12, new Letter('E')));
+        letters.addAll(Collections.nCopies(9, new Letter('A')));
+        letters.addAll(Collections.nCopies(9, new Letter('I')));
+        letters.addAll(Collections.nCopies(8, new Letter('O')));
+        letters.addAll(Collections.nCopies(6, new Letter('N')));
+        letters.addAll(Collections.nCopies(6, new Letter('R')));
+        letters.addAll(Collections.nCopies(6, new Letter('T')));
+        letters.addAll(Collections.nCopies(4, new Letter('L')));
+        letters.addAll(Collections.nCopies(4, new Letter('S')));
+        letters.addAll(Collections.nCopies(4, new Letter('U')));
+        letters.addAll(Collections.nCopies(4, new Letter('D')));
+        letters.addAll(Collections.nCopies(2, new Letter('B')));
+        letters.addAll(Collections.nCopies(2, new Letter('C')));
+        letters.addAll(Collections.nCopies(2, new Letter('M')));
+        letters.addAll(Collections.nCopies(2, new Letter('P')));
+        letters.addAll(Collections.nCopies(2, new Letter('F')));
+        letters.addAll(Collections.nCopies(2, new Letter('H')));
+        letters.addAll(Collections.nCopies(2, new Letter('V')));
+        letters.addAll(Collections.nCopies(2, new Letter('W')));
+        letters.addAll(Collections.nCopies(2, new Letter('Y')));
+        letters.add(new Letter('K'));
+        letters.add(new Letter('J'));
+        letters.add(new Letter('X'));
+        letters.add(new Letter('Q'));
+        letters.add(new Letter('Z'));
     }
     
     public ArrayList<Tile> takeN(int N){
         N = Math.min(letters.size(), N);
         ArrayList<Tile> result = new ArrayList<>(N);
         Random rnd = new Random();
+        //System.out.println("Seed is 2");
         for (int i = 0; i < N; i++){
             int index = rnd.nextInt(letters.size());
             Tile tile = letters.get(index);

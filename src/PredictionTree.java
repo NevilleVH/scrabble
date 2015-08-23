@@ -20,15 +20,20 @@ public class PredictionTree{
         if (prefix.length() == 0) {
             HashSet<Character> temp = new HashSet<>();
             temp.addAll(pt.branches.keySet());
+
             return temp;
         }
-        else
-            return possibleCharacters(prefix.substring(1), pt.branches.get(prefix.charAt(0)));
+        else {
+            if (pt.branches.get(prefix.charAt(0)) == null)
+                return new HashSet<Character>();
+            else
+                return possibleCharacters(prefix.substring(1), pt.branches.get(prefix.charAt(0)));
+        }
     }
 
     private void AddBranches(String[] words){
         int start = 0;
-        if (words[0].equals("")) {
+        if (words[0].equals(" ")) {
             branches.put(' ',new PredictionTree());
             start = 1;
         }
@@ -37,11 +42,13 @@ public class PredictionTree{
 
             char current = words[i].charAt(0);
             words[i] = words[i].substring(1);
+
             if (i == words.length - 1 || current != words[i + 1].charAt(0)) {
                 end = i + 1;
                 branches.put(current, new PredictionTree(Arrays.copyOfRange(words, start, end)));
                 start = i + 1;
             }
+
         }
 
     }

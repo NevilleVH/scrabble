@@ -3,12 +3,11 @@ import java.util.*;
 /**
  * Created by NevilleVH on 2015-08-11.
  */
-public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTERS!!!!!!!!!!!!!
+public class Board {
     private byte size = 15;
     private Cell[][] board = new Cell[size][size];
     private Dictionary dictionary= new Dictionary();
     public enum Direction {DOWN, RIGHT}
-    //public boolean transposed = false;
 
     public Board(){
         byte[][] DW = {{7,7},{1,1},{2,2},{3,3},{4,4},{10,4},{11,3},{12,2},{13,1},{4,10},{3,11},{2,12},{1,13},{10,10},{11,11},{12,12},{13,13}};
@@ -35,39 +34,41 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
         }
     }
 
-    public Tile getIfIsTile(int row, int col){
+
+    public Character letterOnTile(int row, int col){
         if (board[row][col] instanceof Tile){
-            return new Tile((Tile) board[row][col]);
+            return ((Tile) board[row][col]).getLetter();
         } else
             return null;
     }
-
-    public ArrayList<Tile> requiredLetters(WordPosition wordPosition){
+    public String requiredLetters(WordPosition wordPosition){
         String word = wordPosition.getWord();
         Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
-        ArrayList<Tile> result = new ArrayList<>();
-        if (direction == Direction.DOWN){
-            for (int i = 0; i < word.length(); i++){
-                if (!isTile(board[row + i][col])){
-                    result.add(new Tile(word.charAt(i)));
-                }
+        String result = "";
+        if (direction == Direction.RIGHT){
+            transposeBoard();
+            int temp = row;
+            row = col;
+            col = temp;
+        }
+        for (int i = 0; i < word.length(); i++){
+            if (!isTile(board[row + i][col])){
+                result += word.charAt(i);
             }
-        } else {
-            for (int i = 0; i < word.length(); i++){
-                if (!isTile(board[row][col + i])){
-                    result.add(new Tile(word.charAt(i)));
-                }
-            }
+        }
+        if (direction == Direction.RIGHT){
+            transposeBoard();
         }
         return result;
     }
+
     private boolean isTile(Cell cell){
-        return cell.getClass().getName().equals("Tile");//instance of
+        return cell instanceof Tile;//instance of
     }
     private Character getLetter(Cell cell){
-        if (cell.getClass().getName().equals("Tile")){
+        if (cell instanceof Tile){
             return ((Tile) cell).getLetter();
         } else {
             return null;
@@ -82,16 +83,14 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
         }
     }
     public boolean isValid(WordPosition wordPosition){
-        String word = wordPosition.getWord();
         Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
         if (direction == Direction.RIGHT){
             //easier to do the following (though less efficient) than to recode everything for this direction
             transposeBoard();
-            int temp = row;
-            row = col;
-            col = temp;
+            wordPosition.setCol(row);
+            wordPosition.setRow(col);
         }
         boolean result = isValidHelper(wordPosition);
 
@@ -102,7 +101,6 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
     }
     public boolean isValidHelper(WordPosition wordPosition){
         String word = wordPosition.getWord();
-        Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
         //some redundancy here. refactor remaining code into separate methods
@@ -188,7 +186,7 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
         }
     }
 
-    private void transposeBoard(){
+    public void transposeBoard(){
         //transposed = !transposed;
         for (int i = 0; i < size; i++){
             for (int j = i + 1; j < size; j++){
@@ -198,6 +196,7 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
             }
         }
     }
+
 
 
     public String toString(){
@@ -275,32 +274,12 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
         return !isTile(board[size/2][size/2]);
     }
 
-    public void makeOptimalMove(Player player){
+    public boolean isEmpty(int row, int col){
+        return !(board[row][col] instanceof Tile);
+    }
 
-        ArrayList<Tile> letters = player.getRack();
-        Object[] move1 = optimalWord(letters);
-        transposeBoard();
-        Object[] move2 = optimalWord(letters);
-        transposeBoard();
-        int score1 = (Integer) move1[3];
-        int score2 = (Integer) move2[3];
-        if (!(score1 == -1 && score2 == -1)) {
-            player.updateScore(Math.max(score1, score2));
-            int row, col;
-            if (score1 >= score2){//(Math.random() > 0.5) { //score1 >= score2
-                row = (Integer) move1[1];
-                col = (Integer) move1[2];
-                letters = requiredLetters(row, col, Direction.DOWN, (String) move1[0]);
-                playWord(row, col, Direction.DOWN, letters);
-            } else {
-                row = (Integer) move2[2];
-                col = (Integer) move2[1];
-                letters = requiredLetters(row, col, Direction.RIGHT, (String) move2[0]);
-            playWord(row, col, Direction.RIGHT, letters);
-            }
-            player.removeLetters(letters);
-        }
-
+    public void playTile(Tile tile, int row, int col){
+        board[row][col] = tile;
     }
 
 
@@ -350,17 +329,19 @@ public class Board { //SORT OUT PROBLEM WUTH BLANKS BEING SCORED AS NORMAL LETTE
         return i;
     }
 
-
+/*
     public String possiblePositions(String word, Direction direction, ArrayList<Tile> letters){
         String result = "";
         if (!isEmpty()) {
             for (int row = 0; row < size; row++) {
                 for (int col = 0; col < size; col++) {
-                    if (isValid(row, col, direction, word) && isContained(letters, requiredLetters(row, col, direction, word)))
+                    WordPosition wordPosition = new WordPosition(direction, row, col, word);
+                    if (isValid(wordPosition) && isContained(letters, requiredLetters(wordPosition)))
                         result += String.format("Suggested word location:\nRow:\t%d\nColumn:\t%d\n", row + 1, col + 1);
                 }
             }
         }
         return result;
     }
+    */
 }
