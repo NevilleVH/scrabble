@@ -34,10 +34,6 @@ public class Dictionary {
     }
 
 
-    public HashSet<String> getDictionary(){
-        return dictionary;
-    }
-
 
 
     public boolean wordExists(String word){

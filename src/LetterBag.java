@@ -12,7 +12,8 @@ public class LetterBag {
 
     public LetterBag (){
         letters = new ArrayList<>(100);
-        letters.addAll(Collections.nCopies(2, new Blank()));
+        letters.add (new Blank());
+        letters.add (new Blank());//necessary because blanks are mutable, and n copies will give us two blanks of the same value: changing one changes the other
         letters.addAll(Collections.nCopies(12, new Letter('E')));
         letters.addAll(Collections.nCopies(9, new Letter('A')));
         letters.addAll(Collections.nCopies(9, new Letter('I')));
@@ -43,6 +44,8 @@ public class LetterBag {
     public ArrayList<Tile> takeN(int N){
         N = Math.min(letters.size(), N);
         ArrayList<Tile> result = new ArrayList<>(N);
+        //int seed =(int) (Math.random()*1000);
+        //System.out.println("seed is " + seed);
         Random rnd = new Random();
         //System.out.println("Seed is 2");
         for (int i = 0; i < N; i++){

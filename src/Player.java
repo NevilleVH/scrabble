@@ -71,8 +71,8 @@ public class Player {
         for (int i = 0; i < rack.size(); i++) {
             Tile tile = rack.get(i);
             if (tile instanceof Blank) {
-                rack.remove(tile);
-                return (Blank) tile;
+                rack.remove(i);
+                return new Blank();
             }
         }
         return null;

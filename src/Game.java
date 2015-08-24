@@ -1,6 +1,4 @@
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * Created by NevilleVH on 2015-08-11.
@@ -11,10 +9,19 @@ public class Game {
     private LetterBag letterBag = new LetterBag();
 
     public Game(String name, int numAI, AIPlayer.Difficulty difficulty){
+        ArrayList<Byte> positions = new ArrayList<>(numAI + 1);
+        for (byte i = 0; i < numAI + 1; i++){
+            positions.add(i);
+        }
         players = new Player[numAI + 1];
-        players[0] = new Player(name);
-        for (int i = 1; i < numAI + 1; i++){
-            players[i] = new AIPlayer("AI" + Integer.toString(i),difficulty);
+        Random rnd = new Random();
+        byte pos = positions.get(rnd.nextInt(positions.size()));
+        players[pos] = new Player(name);
+        positions.remove((Byte) pos);
+        for (int i = 0; i < numAI; i++){
+            pos = positions.get(rnd.nextInt(positions.size()));
+            players[pos] = new AIPlayer("AI" + Integer.toString(i),difficulty);
+            positions.remove((Byte)pos);
         }
     }
     public void Play(){
@@ -94,15 +101,16 @@ public class Game {
                             int j;
                             for (j = 0; j < players.length && allAgree; j++){
                                 if (j != i){
-                                    System.out.printf("Player %d, Player %d has suggested that the game end. Do you agree? (Y/N)\n",j,i);
-                                    allAgree = (scanner.nextLine().toUpperCase().charAt(0) == 'Y');
+                                    allAgree = ((AIPlayer) players[j]).anyPossibleMoves(board);
+                                    //System.out.printf("Player %d, Player %d has suggested that the game end. Do you agree? (Y/N)\n",j,i);
+                                    //allAgree = (scanner.nextLine().toUpperCase().charAt(0) == 'Y');
                                 }
                             }
                             if (allAgree){
                                 System.out.println("All players have agreed that the game end.");
                                 gameOver = turnFinished = true;
                             } else {
-                                System.out.printf("Player %d wishes the game to continue.\n",j);
+                                System.out.printf("%s wishes the game to continue.\n",players[j-1].getName());
                             }
                             break;
 

@@ -104,7 +104,7 @@ public class Board {
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
         //some redundancy here. refactor remaining code into separate methods
-        if (row > size - 1 || row < 0 || col > size - 1 || col < 0 || row + word.length() - 1 >= size) {
+        if (row > size - 1 || row < 0 || col > size - 1 || col < 0 || row + word.length()  > size) {
             return false;
         }
         else {
@@ -123,7 +123,7 @@ public class Board {
                         containsLetter = true;
                     else if (row + word.length() < size && isTile(board[row + word.length()][col]))
                         containsLetter = true;
-                    for (i = row; i < row + word.length()-1 && !containsLetter; i++) {
+                    for (i = row; i < row + word.length() && !containsLetter; i++) {
                         for (int j = (col == 0) ? 0 : col - 1; j < size && j < col + 1 && !containsLetter; j++) {
                             containsLetter = (isTile(board[i][j]));
                         }
@@ -278,14 +278,6 @@ public class Board {
         return !(board[row][col] instanceof Tile);
     }
 
-    public void playTile(Tile tile, int row, int col){
-        board[row][col] = tile;
-    }
-
-
-    private boolean anyAdjacentTilesInRow(int row, int col){
-        return (col - 1 >= 0 && isTile(board[row][col - 1])) || (col + 1 < size && isTile(board[row][col + 1]));
-    }
 
     public String prefixAlongRow(int row, int col){
         String result = "";

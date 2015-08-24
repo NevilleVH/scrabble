@@ -17,9 +17,10 @@ public class Cell {
         temp[0] = "┌";
         temp[1] = temp[2] = "│";
         temp[3] = "├";
+        String axis = "";
         int count = 0;
         for (Cell cell : cells[0]){
-            result += String.format(" %2s ", ++count);
+            axis += String.format("  %-2s", ++count);
             String[] concatable = cell.getConcatable();
             temp[0] += concatable[0] + "┬";
             temp[1] += concatable[1];
@@ -70,7 +71,7 @@ public class Cell {
             result += temp[j] + '\n';
             temp[j] = "";
         }
-        return result;
+        return result + axis;
     }
 
 
