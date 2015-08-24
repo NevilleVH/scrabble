@@ -40,20 +40,30 @@ public class Scrabble {
         int numPlayers = scanner.nextInt();
         scanner.nextLine();
         */
-        startMessage();
         Scanner scanner = new Scanner(System.in);
-
+        boolean newGame;
+        startMessage();
         System.out.println("Please enter your name:");
         String name = scanner.nextLine();
-        System.out.println("How AI players do you wish to play against?");
-        int AIs = scanner.nextInt();
-        scanner.nextLine();
-        System.out.println("Select your desired difficulty level:\n1) Easy\n2) Intermediate\n3) Hard");
-        int difficultyNum = scanner.nextInt();
-        scanner.nextLine();
-        AIPlayer.Difficulty difficulty = AIPlayer.Difficulty.values()[difficultyNum-1];
-        Game game = new Game(name, AIs, difficulty);
-        game.Play();
+        do {
+            try {
+                System.out.println("How AI players do you wish to play against?");
+                int AIs = scanner.nextInt();
+                scanner.nextLine();
+                System.out.println("Select your desired difficulty level:\n1) Easy\n2) Intermediate\n3) Hard");
+                int difficultyNum = scanner.nextInt();
+                scanner.nextLine();
+                AIPlayer.Difficulty difficulty = AIPlayer.Difficulty.values()[difficultyNum - 1];
+                Game game = new Game(name, AIs, difficulty);
+                game.Play();
+                startMessage();
+                System.out.println("New game? (Y/N)");
+                newGame = scanner.nextLine().toUpperCase().charAt(0) == 'Y';
+            } catch (Exception e){
+                System.out.println("Invalid input!");
+                newGame = false;
+            }
+        } while (newGame);
     }
 
     public static void startMessage(){

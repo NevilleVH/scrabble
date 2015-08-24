@@ -6,7 +6,6 @@ import java.util.*;
 public class Board {
     private byte size = 15;
     private Cell[][] board = new Cell[size][size];
-    private Dictionary dictionary= new Dictionary();
     public enum Direction {DOWN, RIGHT}
 
     public Board(){
@@ -82,7 +81,7 @@ public class Board {
             return null;
         }
     }
-    public boolean isValid(WordPosition wordPosition){
+    public boolean isValid(WordPosition wordPosition, Dictionary dictionary){
         Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
@@ -92,14 +91,14 @@ public class Board {
             wordPosition.setCol(row);
             wordPosition.setRow(col);
         }
-        boolean result = isValidHelper(wordPosition);
+        boolean result = isValidHelper(wordPosition, dictionary);
 
         if (direction == Direction.RIGHT)
             transposeBoard();
 
         return result;
     }
-    public boolean isValidHelper(WordPosition wordPosition){
+    public boolean isValidHelper(WordPosition wordPosition, Dictionary dictionary){
         String word = wordPosition.getWord();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
@@ -124,7 +123,7 @@ public class Board {
                     else if (row + word.length() < size && isTile(board[row + word.length()][col]))
                         containsLetter = true;
                     for (i = row; i < row + word.length() && !containsLetter; i++) {
-                        for (int j = (col == 0) ? 0 : col - 1; j < size && j < col + 1 && !containsLetter; j++) {
+                        for (int j = (col == 0) ? 0 : col - 1; j < size && j <= col + 1 && !containsLetter; j++) {
                             containsLetter = (isTile(board[i][j]));
                         }
                     }
@@ -197,12 +196,6 @@ public class Board {
         }
     }
 
-
-
-    public String toString(){
-        return Cell.toString(board);
-    }
-
     public void playWord(int row, int col, Direction direction, ArrayList<Tile> tiles){
         if (direction == Direction.RIGHT){
             transposeBoard();
@@ -238,18 +231,20 @@ public class Board {
         for (; i >= 0 && isTile(board[i][col]); i--){}
         i++;
 
-        if (i != row) {
+        if (i != row) {//not entirely sure why I did this
             if (direction == Direction.RIGHT) {
                 transposeBoard();
                 return pointsFromWord(col, i, Direction.RIGHT, tiles);
             }
         }
 
-        for (i = 0; count < tiles.size()/*i < word.length()*/; i++){
+
+        for (i = 0; row + i < size && (count < tiles.size() || isTile(board[row + i][col])); i++){
             byte letterMultiplier = 1;
 
             if (!isTile(board[row + i][col])) {
                 count++;
+
                 if (board[row + i][col] instanceof Multiplier) {
                     multiplier = (Multiplier) board[row + i][col];
                     if (multiplier.getMultiplierType() == Multiplier.MultiplierType.LTR) {
@@ -265,10 +260,32 @@ public class Board {
             }
 
         }
+        points *= wordMultiplier;
+        count = 0;
+        for (i = 0; count < tiles.size() ; i++) {
+            if (!isTile(board[row + i][col])) {
+                count++;
+
+                int acrossPrefix = 0;
+                boolean hasPref = false;
+                boolean hasSuff = false;
+                for (int j = col - 1; j >= 0 && isTile(board[row + i][j]); j--) {
+                    hasPref = true;
+                    acrossPrefix += ((Tile) board[row + i][j]).getPoints();
+                }
+                int acrossSuffix = 0;
+                for (int j = col + 1; j < size && isTile(board[row + i][j]); j++) {
+                    hasSuff = true;
+                    acrossSuffix += ((Tile) board[row + i][j]).getPoints();
+                }
+                if (hasPref || hasSuff)
+                    points += acrossPrefix + tiles.get(count - 1).getPoints() + acrossSuffix;
+            }
+        }
         if (count == 7) points += 50; //add a 'bonus' msg
         if (direction == Direction.RIGHT) transposeBoard();
 
-        return (points) * wordMultiplier;
+        return points;
     }
     public boolean isEmpty(){
         return !isTile(board[size/2][size/2]);
@@ -319,6 +336,64 @@ public class Board {
         int i;
         for (i = row + 1; i < size && !isTile(board[i][col]); i++){}
         return i;
+    }
+    public String toString(){ //clean this up
+        String result = "";
+        String[] temp = new String[4];
+        temp[0] = "┌";
+        temp[1] = temp[2] = "│";
+        temp[3] = "├";
+        String axis = "";
+        int count = 0;
+        for (Cell cell : board[0]){
+            axis += String.format("  %-2s", ++count);
+            String[] concatable = cell.getConcatable();
+            temp[0] += concatable[0] + "┬";
+            temp[1] += concatable[1];
+            temp[2] += concatable[2];
+            temp[3] += concatable[3] + "┼";
+        }
+        count = 0;
+        result += '\n';
+        temp[0] = temp[0].substring(0, temp[0].length() - 1) + "┐";
+        temp[1] += Integer.toString(++count);
+        temp[3] = temp[3].substring(0, temp[3].length() - 1) + "┤";
+        for (int i = 0; i < 4 ;i++){
+            result += temp[i] + '\n';
+            temp[i] = "";
+        }
+
+        for (int i = 1; i < board.length - 1;i++){
+            temp[1] = temp[2] = "│";
+            temp[3] = "├";
+            for (Cell cell : board[i]){
+                String[] concatable = cell.getConcatable();
+                temp[1] += concatable[1];
+                temp[2] += concatable[2];
+                temp[3] += concatable[3] + "┼";
+            }
+            temp[1] += Integer.toString(++count);
+            temp[3] = temp[3].substring(0, temp[3].length() - 1) + "┤";
+            for (int j = 1; j < 4; j++){
+                result += temp[j] + '\n';
+                temp[j] = "";
+            }
+        }
+        temp[1] = temp[2] = "│";
+        temp[3] = "└";
+        for (Cell cell : board[board.length-1]){
+            String[] concatable = cell.getConcatable();
+            temp[1] += concatable[1];
+            temp[2] += concatable[2];
+            temp[3] += concatable[3] + "┴";
+        }
+        temp[1] += Integer.toString(++count);
+        temp[3] = temp[3].substring(0, temp[3].length() - 1) + "┘";
+        for (int j = 1; j < 4; j++){
+            result += temp[j] + '\n';
+            temp[j] = "";
+        }
+        return result + axis;
     }
 
 /*

@@ -8,6 +8,7 @@ import java.util.HashSet;
 public class Player {
     protected String name;
     private int score;
+    private int numTurns = 0;
     protected ArrayList<Tile> rack;
 
     public Player(){
@@ -19,6 +20,10 @@ public class Player {
         name = pName;
         score = 0;
         rack = new ArrayList<>();
+    }
+
+    public String toString(){
+        return String.format("%s\t\t%d\t\t%.2f\n", name, getFinalScore(), numTurns == 0 ? 0.0 : getFinalScore()/numTurns);
     }
 
 
@@ -36,7 +41,10 @@ public class Player {
 
     public void drawTiles(ArrayList<Tile> newTiles){
         rack.addAll(newTiles);
+    }
 
+    public void incrementTurns(){
+        numTurns++;
     }
 
     public void removeLetter(char character){
@@ -112,13 +120,6 @@ public class Player {
     }
 
 
-    public String toString(){
-        String result = "";
-        for (Tile tile : rack){
-            result += tile.getLetter();
-        }
-        return result;
-    }
 
 
     public ArrayList<Tile> getTiles(){

@@ -10,13 +10,13 @@ import java.util.*;
 public class Dictionary {
     private HashSet<String> dictionary = new HashSet<>();
 
-    public Dictionary(){
+    public Dictionary(String filename){
         try {
             String dir = System.getProperty("user.dir");
             if (dir.indexOf("out") == -1)
                 dir += "\\src";
 
-            FileReader fileReader = new FileReader(dir+"\\HARD.txt");
+            FileReader fileReader = new FileReader(dir+"\\" + filename);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
             ArrayList<String> temp = new ArrayList<>();
 
@@ -27,7 +27,7 @@ public class Dictionary {
             }
 
         } catch (FileNotFoundException ex){
-            System.out.println("HARD.txt not found.");
+            System.out.println("file not found.");
         } catch (IOException ex){
             //System.out.println("Error reading file.");
         }
