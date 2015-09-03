@@ -1,13 +1,6 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+
 import java.lang.System;
-import java.lang.reflect.Field;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Scanner;
 
 /**
@@ -40,6 +33,8 @@ public class Scrabble {
         int numPlayers = scanner.nextInt();
         scanner.nextLine();
         */
+
+        new GUI();/*
         Scanner scanner = new Scanner(System.in);
         boolean newGame;
         startMessage();
@@ -64,6 +59,7 @@ public class Scrabble {
                 newGame = false;
             }
         } while (newGame);
+        */
     }
 
     public static void startMessage(){

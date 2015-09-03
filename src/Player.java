@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Stack;
 
 /**
  * Created by NevilleVH on 2015-08-10.
@@ -9,6 +10,7 @@ public class Player {
     protected String name;
     private int score;
     private int numTurns = 0;
+    private Stack<Position> wordsPlayed= new Stack<>(); //only need to access most recent word
     protected ArrayList<Tile> rack;
 
     public Player(){
@@ -22,8 +24,16 @@ public class Player {
         rack = new ArrayList<>();
     }
 
+    public void updateWordsPlayed(Position position){
+        wordsPlayed.push(position);
+    }
+
     public String toString(){
         return String.format("%s\t\t%d\t\t%.2f\n", name, getFinalScore(), numTurns == 0 ? 0.0 : getFinalScore()/numTurns);
+    }
+
+    public double avgPointsPerRound(){
+        return numTurns > 0 ? score/numTurns : 0;
     }
 
 
@@ -185,7 +195,7 @@ public class Player {
         for (Tile tile : rack) {
             String letter = tile.getLetter() + "";
             if (letters.contains(letter))
-                letters = letters.replace(letter, "");
+                letters = letters.replaceFirst(letter, "");
         }
         return numberOfBlanks() >= letters.length();
 

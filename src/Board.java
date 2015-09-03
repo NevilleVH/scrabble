@@ -40,7 +40,7 @@ public class Board {
         } else
             return null;
     }
-    public String requiredLetters(WordPosition wordPosition){
+    public String requiredLetters(Position wordPosition){
         String word = wordPosition.getWord();
         Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
@@ -81,7 +81,81 @@ public class Board {
             return null;
         }
     }
-    public boolean isValid(WordPosition wordPosition, Dictionary dictionary){
+    public Direction inferDirection(ArrayList<Position> positions){
+        int row = positions.get(0).getRow();
+        int col =  positions.get(0).getCol();
+        if (positions.size() == 1) {
+            if (row - 1 > -1 && board[row - 1][col] instanceof Tile)
+                return Direction.DOWN;
+            else if (row + 1 < size && board[row + 1][col] instanceof Tile)
+                return Direction.DOWN;
+            else if (col - 1 > -1 && board[row][col - 1] instanceof Tile)
+                return Direction.RIGHT;
+            else if (col + 1 < size && board[row][col + 1] instanceof Tile)
+                return Direction.RIGHT;
+            else
+                return null;
+        }
+        if (positions.get(0).getCol() == positions.get(1).getCol()) {
+            for (int i = 1; i < positions.size() - 1; i++) {
+                if (positions.get(i).getCol() != positions.get(i + 1).getCol())
+                    return null;
+            }
+            return Direction.DOWN;
+        }
+
+        for (int i = 0; i < positions.size() - 1; i++) {
+            if (positions.get(i).getRow() != positions.get(i + 1).getRow())
+                return null;
+        }
+        return Direction.RIGHT;
+
+    }
+    public boolean isValid(ArrayList<Position> positions, Dictionary dictionary){
+        int row = positions.get(0).getRow();
+        int col =  positions.get(0).getCol();
+        Direction direction = inferDirection(positions);
+        if (direction == null)
+            return false;
+        String word = "";
+        if (positions.size() == 1) {
+            word = positions.get(0).getWord();
+        } else if (direction == Direction.DOWN){
+            Collections.sort(positions, Comparator.comparing(Position::getRow));
+            int count = 0;
+            int i = 0;
+            while (count < positions.size()){
+                if (!(board[row+i][col] instanceof Tile)/*&& positions.get(count).getRow() == row + count*/){
+                    word += positions.get(count).getWord(); //should rename this method
+                    count++;
+                    i++;
+                }
+                else {
+                    word += ((Tile) board[row + i][col]).getLetter();
+                    i++;
+                }
+
+            }
+        } else {
+            Collections.sort(positions, Comparator.comparing(Position::getCol));
+            int count = 0;
+            int i = 0;
+            while (count < positions.size()){
+                if (!(board[row][col+i] instanceof Tile) /*&& positions.get(count).getCol() == col+ count*/) {
+                    word += positions.get(count).getWord(); //should rename this method
+                    count++;
+                    i++;
+                }
+                else {
+                    word += ((Tile) board[row][col + i]).getLetter();
+                    i++;
+                }
+
+            }
+        }
+        return isValid(new Position(direction,row,col,word), dictionary);
+    }
+    public boolean isValid(Position wordPosition, Dictionary dictionary){
         Direction direction = wordPosition.getDirection();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
@@ -98,7 +172,11 @@ public class Board {
 
         return result;
     }
-    public boolean isValidHelper(WordPosition wordPosition, Dictionary dictionary){
+
+    public Cell getCell(int row, int col){
+        return board[row][col];
+    }
+    public boolean isValidHelper(Position wordPosition, Dictionary dictionary){
         String word = wordPosition.getWord();
         int row = wordPosition.getRow();
         int col = wordPosition.getCol();
@@ -237,7 +315,7 @@ public class Board {
                 return pointsFromWord(col, i, Direction.RIGHT, tiles);
             }
         }
-
+        row = i;
 
         for (i = 0; row + i < size && (count < tiles.size() || isTile(board[row + i][col])); i++){
             byte letterMultiplier = 1;
@@ -402,7 +480,7 @@ public class Board {
         if (!isEmpty()) {
             for (int row = 0; row < size; row++) {
                 for (int col = 0; col < size; col++) {
-                    WordPosition wordPosition = new WordPosition(direction, row, col, word);
+                    Position wordPosition = new Position(direction, row, col, word);
                     if (isValid(wordPosition) && isContained(letters, requiredLetters(wordPosition)))
                         result += String.format("Suggested word location:\nRow:\t%d\nColumn:\t%d\n", row + 1, col + 1);
                 }

@@ -5,6 +5,7 @@ import java.util.*;
  */
 public class Game {
     private Board board = new Board();
+    private Byte playerIndex;
     private Player[] players;
     private LetterBag letterBag = new LetterBag();
     private Dictionary dictionary = new Dictionary("HARD.txt");
@@ -16,8 +17,8 @@ public class Game {
         }
         players = new Player[numAI + 1];
         Random rnd = new Random();
-        byte pos = positions.get(rnd.nextInt(positions.size()));
-        players[pos] = new Player(name);
+        byte pos = playerIndex = positions.get(rnd.nextInt(positions.size()));
+        players[pos] =  new Player(name);
         positions.remove((Byte) pos);
         for (int i = 0; i < numAI; i++){
             pos = positions.get(rnd.nextInt(positions.size()));
@@ -25,16 +26,71 @@ public class Game {
             positions.remove((Byte)pos);
         }
     }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public HashMap<Tile, Integer> unseenLetters(Player toWhom){ //i.e. to whom are they unseen?
+        HashMap<Tile, Integer> result = new HashMap<>();
+        for (Player player : players){
+            if (player != toWhom){
+                for (Tile tile : player.getRack())
+                    result.put(tile, result.get(tile) == null ? 1 : result.get(tile) + 1);
+            }
+        }
+        for (Tile tile : letterBag.getLetters()){
+            result.put(tile, result.get(tile) == null ? 1 : result.get(tile) + 1);
+        }
+        return result;
+    }
+
+    public ArrayList<Tile> probableDraws(Player player){
+        ArrayList<Tile> result = new ArrayList<>();
+        HashMap<Tile, Integer> unseen = unseenLetters(player);
+
+        result.addAll(unseen.keySet());
+        Collections.sort(result, Comparator.comparing(tile -> -1*unseen.get(tile)));
+        return result;
+    }
+
+    public LetterBag getLetterBag(){
+        return letterBag;
+    }
+
+    public Object[][] scoreData(){
+        Object[][] result = new Object[players.length][2];
+        for (int i = 0; i < players.length; i++){
+            result[i][0] = players[i].getName();
+            result[i][1] = players[i].getScore();
+        }
+        return result;
+    }
+
+    public void nextTurn(){
+        if (!gameOver()) {
+            for (int i = 0; i < players.length; i++) {
+                players[i].drawTiles(letterBag.takeN(players[i].tilesToDraw()));
+                if (players[i] instanceof AIPlayer) {
+                    ((AIPlayer) players[i]).makeMove(this); //if null has passed
+                }
+
+            }
+        }
+    }
+/*
     public void Play(){
         Scanner scanner = new Scanner(System.in);
         boolean gameOver = false;
         System.out.println(board);
         String turnReport = "";
+
         while (!gameOver){
             for (int i = 0; i < players.length && !gameOver; i++){
                 players[i].drawTiles(letterBag.takeN(players[i].tilesToDraw()));
                 if (players[i] instanceof AIPlayer){
-                    WordPosition move = ((AIPlayer) players[i]).makeMove(board);
+                    //System.out.println(players[i].viewTiles());
+                    Position move = ((AIPlayer) players[i]).makeMove(board);
 
                     if (move != null)
                         turnReport +=String.format("%s played %s at position (%d,%d); scoring %d points.\n",players[i].getName(),move.getWord(),move.getCol()+1,move.getRow()+1,move.getPoints());
@@ -77,6 +133,24 @@ public class Game {
         }
 
         displayResult();
+
+    }
+*/
+    public boolean validateMove(ArrayList<Position> positions){
+        return board.isValid(positions,dictionary);
+    }
+
+    public boolean gameOver(){
+        if (letterBag.numAvailable() == 0){
+            for (Player player: players)
+                if (player.rackEmpty())
+                    return true;
+        }
+        return false;
+    }
+
+    public ArrayList<Tile> getRack(){
+        return players[playerIndex].getRack();
     }
 
     private void displayResult(){
@@ -107,7 +181,14 @@ public class Game {
             System.out.println("There need to be at least 7 letters in the bag to make an exchange!");
         return false;
     }
+    public boolean canExchange(){
+        return letterBag.numAvailable() >= 7;
+    }
 
+    public void exchangeTile(char letter){
+        players[playerIndex].removeLetter(letter);
+    }
+/*
     private boolean suggestEnd(int playerNum){
         boolean allAgree = true;
         int j;
@@ -126,40 +207,21 @@ public class Game {
             return false;
         }
     }
+*/
+    public void playWord(ArrayList<Position> positions/*int playerNum*/) {
 
-    private boolean playWord(int playerNum) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter the word you wish to play:");
-        try{
-            String word = scanner.nextLine().toUpperCase();
-            System.out.println("Enter the direction in which you wish to place your word (Right/Down):");
-            Board.Direction direction = Board.Direction.valueOf(scanner.nextLine().toUpperCase());
-            //System.out.println(board.possiblePositions(word, direction, players[i].getRack()));
-            System.out.println("Enter the row in which you want to place your word:");
-            int row = scanner.nextInt() - 1;
-            scanner.nextLine();
-            System.out.println("Enter the column in which you want to place your word:");
-            int column = scanner.nextInt() - 1;
-            scanner.nextLine();
-            WordPosition wordPosition = new WordPosition(direction, row, column, word);
-            String requiredLetters = board.requiredLetters(wordPosition);
-            if (board.isValid(wordPosition,dictionary) && players[playerNum].rackContains(requiredLetters)) {
-                ArrayList<Tile> letters = players[playerNum].playTiles(requiredLetters);
-                int points = board.pointsFromWord(row, column, direction, letters);
-                board.playWord(row, column, direction, letters);
-                players[playerNum].updateScore(points);
-                if (players[playerNum].rackEmpty())
-                    System.out.println("Bonus!");
-                return true;
-            } else {
-                System.out.println("Invalid move!");
-                return false;
-            }
-
-        } catch (/*InputMismatch*/Exception e) {
-            System.out.println("Invalid input!");
-            return false;
-        }
+        String requiredLetters = "";
+        for (Position position : positions)
+            requiredLetters += position.getWord();
+        int row = positions.get(0).getRow();
+        int column = positions.get(0).getCol();
+        Board.Direction direction = board.inferDirection(positions);
+        ArrayList<Tile> letters = players[playerIndex].playTiles(requiredLetters);
+        int points = board.pointsFromWord(row, column, direction, letters);
+        board.playWord(row, column, direction, letters);
+        players[playerIndex].updateScore(points);
+        //if (players[playerNum].rackEmpty())
+        //    System.out.println("Bonus!");
 
     }
 

@@ -56,8 +56,14 @@ public class LetterBag {
         }
         return result;
     }
-
+    public boolean canExchange(){
+        return numAvailable() >= 7;
+    }
     public int numAvailable(){
         return letters.size();
+    }
+
+    public ArrayList<Tile> getLetters() {
+        return letters;
     }
 }
